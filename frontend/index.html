@@ -1,54 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>BudgetBuddy AI</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudgetBuddy AI — Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
 <body>
 
-  <header>
-    <h1>BudgetBuddy AI</h1>
-    <p>Your AI-powered personal finance coach</p>
-  </header>
+<div class="app">
 
-  <main>
-    <!-- Member 2: wire this form to POST /transactions -->
-    <section id="add-transaction">
-      <h2>Add Transaction</h2>
-      <form id="transaction-form">
-        <input type="number" id="amount" placeholder="Amount" required>
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">💰</div>
+      <div class="brand-name">BudgetBuddy AI</div>
+    </div>
+    <div class="avatar" id="user-avatar">A</div>
+  </div>
+
+  <!-- Balance hero -->
+  <div class="balance-card">
+    <div class="balance-label">Total Balance</div>
+    <div class="balance-amount" id="total-balance">Rs. 0</div>
+    <div class="balance-split">
+      <div><span>Income</span><strong id="total-income">Rs. 0</strong></div>
+      <div><span>Expenses</span><strong id="total-expense">Rs. 0</strong></div>
+    </div>
+  </div>
+
+  <!-- Anomaly alert -->
+  <div class="anomaly-banner hidden" id="anomaly-alert"></div>
+
+  <!-- Quick actions -->
+  <div class="quick-actions">
+    <button id="show-add-transaction">➕ Add Expense</button>
+    <button id="show-add-income">💵 Add Income</button>
+    <button id="show-scan-receipt">📷 Scan Receipt</button>
+  </div>
+
+  <!-- Add transaction form -->
+  <div class="form-panel hidden" id="transaction-panel">
+    <div class="section-head"><h2>Add Transaction</h2></div>
+    <form id="transaction-form">
+      <div class="form-row">
+        <input type="number" id="amount" placeholder="Amount (Rs.)" required>
         <input type="text" id="description" placeholder="Description (e.g. Careem ride)" required>
         <input type="date" id="date" required>
-        <button type="submit">Add</button>
-      </form>
-    </section>
+      </div>
+      <div class="form-row" style="margin-top:12px;">
+        <button type="submit" class="btn-primary">Save Transaction</button>
+        <button type="button" class="btn-secondary" id="cancel-transaction">Cancel</button>
+      </div>
+    </form>
+  </div>
 
-    <!-- Member 5: receipt upload UI -->
-    <section id="receipt-scan">
-      <h2>Scan a Receipt</h2>
+  <!-- Receipt scanner -->
+  <div class="form-panel hidden" id="receipt-panel">
+    <div class="section-head"><h2>Scan a Receipt</h2></div>
+    <div class="form-row">
       <input type="file" id="receipt-upload" accept="image/*">
-      <button id="scan-btn">Scan Receipt</button>
-    </section>
+      <button class="btn-primary" id="scan-btn">Scan &amp; Auto-fill</button>
+    </div>
+  </div>
 
-    <!-- Member 1: dashboard charts go here -->
-    <section id="dashboard">
-      <h2>Spending Dashboard</h2>
-      <canvas id="category-chart"></canvas>
-      <div id="anomaly-alert" class="hidden"></div>
-      <div id="forecast-box"></div>
-    </section>
+  <!-- Savings goals -->
+  <div class="section-head">
+    <h2>Savings Goals</h2>
+    <button class="text-link" id="add-goal-trigger">+ New goal</button>
+  </div>
+  <div class="goals-row" id="goals-row">
+    <!-- goal cards injected by script.js -->
+    <div class="add-goal-card" id="add-goal-card">
+      <span style="font-size:22px;">＋</span>
+      <span>Add Goal</span>
+    </div>
+  </div>
 
-    <!-- Member 4: chat advisor UI -->
-    <section id="chat-advisor">
-      <h2>Ask Your Finance Coach</h2>
-      <div id="chat-log"></div>
-      <input type="text" id="chat-input" placeholder="Ask a question about your spending...">
-      <button id="chat-send">Send</button>
-    </section>
-  </main>
+  <!-- Add goal form (hidden until triggered) -->
+  <div class="form-panel hidden" id="goal-panel">
+    <div class="section-head"><h2>New Savings Goal</h2></div>
+    <form id="goal-form">
+      <div class="form-row">
+        <input type="text" id="goal-name" placeholder="Goal name (e.g. Travel)" required>
+        <input type="number" id="goal-target" placeholder="Target amount" required>
+        <input type="date" id="goal-deadline" required>
+      </div>
+      <div class="form-row" style="margin-top:12px;">
+        <button type="submit" class="btn-primary">Create Goal</button>
+        <button type="button" class="btn-secondary" id="cancel-goal">Cancel</button>
+      </div>
+    </form>
+  </div>
 
-  <script src="script.js"></script>
+  <!-- Spending breakdown + transactions -->
+  <div class="grid-two">
+    <div class="panel">
+      <div class="section-head"><h2>Spending Breakdown</h2></div>
+      <canvas id="category-chart" height="200"></canvas>
+      <div class="legend" id="category-legend"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-head"><h2>Recent Transactions</h2></div>
+      <ul class="tx-list" id="tx-list">
+        <!-- injected by script.js -->
+      </ul>
+    </div>
+  </div>
+
+  <!-- AI Chat Advisor -->
+  <div class="chat-panel">
+    <div class="section-head"><h2>Ask BudgetBuddy 🤖</h2></div>
+    <div id="chat-log"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chat-input" placeholder="e.g. Where did most of my money go this month?">
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>

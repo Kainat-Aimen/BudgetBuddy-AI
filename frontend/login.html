@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudgetBuddy AI — Log In</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-wrap">
+
+  <div class="auth-form-side">
+    <div class="auth-form">
+      <div class="brand">
+        <div class="brand-mark">💰</div>
+        <div class="brand-name">BudgetBuddy AI</div>
+      </div>
+
+      <h1 id="auth-title">Welcome back</h1>
+      <p class="sub" id="auth-sub">Track your spending, hit your savings goals, and let AI handle the numbers.</p>
+
+      <form id="auth-form">
+        <div class="field" id="name-field" style="display:none;">
+          <label for="name">Full name</label>
+          <input type="text" id="name" placeholder="Your name">
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="auth-submit" id="auth-submit-btn">Log in</button>
+      </form>
+
+      <div class="auth-divider">or continue with</div>
+      <button class="btn-secondary" style="width:100%;" id="google-btn">Continue with Google</button>
+
+      <div class="auth-switch">
+        <span id="switch-text">New here?</span>
+        <button id="switch-btn">Create an account</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-visual-side">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="auth-visual-content">
+      <h2>Every rupee, accounted for.</h2>
+      <p>BudgetBuddy AI categorizes your spending, spots unusual charges, and tells you exactly what you can save this month — automatically.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // NOTE: This is a UI-only placeholder for the hackathon demo.
+  // TODO (Member 2): connect this form to a real /auth endpoint if authentication
+  // is added to the backend. For now it just redirects to the dashboard.
+
+  let isSignup = false;
+
+  document.getElementById("switch-btn").addEventListener("click", () => {
+    isSignup = !isSignup;
+    document.getElementById("auth-title").textContent = isSignup ? "Create your account" : "Welcome back";
+    document.getElementById("auth-sub").textContent = isSignup
+      ? "Set up BudgetBuddy AI in under a minute — no spreadsheets required."
+      : "Track your spending, hit your savings goals, and let AI handle the numbers.";
+    document.getElementById("name-field").style.display = isSignup ? "block" : "none";
+    document.getElementById("auth-submit-btn").textContent = isSignup ? "Create account" : "Log in";
+    document.getElementById("switch-text").textContent = isSignup ? "Already have an account?" : "New here?";
+    document.getElementById("switch-btn").textContent = isSignup ? "Log in" : "Create an account";
+  });
+
+  document.getElementById("auth-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    window.location.href = "index.html";
+  });
+
+  document.getElementById("google-btn").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+</script>
+
+</body>
+</html>
