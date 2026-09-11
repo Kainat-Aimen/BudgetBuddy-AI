@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BudgetBuddy AI</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>BudgetBuddy AI</h1>
+    <p>Your AI-powered personal finance coach</p>
+  </header>
+
+  <main>
+    <!-- Member 2: wire this form to POST /transactions -->
+    <section id="add-transaction">
+      <h2>Add Transaction</h2>
+      <form id="transaction-form">
+        <input type="number" id="amount" placeholder="Amount" required>
+        <input type="text" id="description" placeholder="Description (e.g. Careem ride)" required>
+        <input type="date" id="date" required>
+        <button type="submit">Add</button>
+      </form>
+    </section>
+
+    <!-- Member 5: receipt upload UI -->
+    <section id="receipt-scan">
+      <h2>Scan a Receipt</h2>
+      <input type="file" id="receipt-upload" accept="image/*">
+      <button id="scan-btn">Scan Receipt</button>
+    </section>
+
+    <!-- Member 1: dashboard charts go here -->
+    <section id="dashboard">
+      <h2>Spending Dashboard</h2>
+      <canvas id="category-chart"></canvas>
+      <div id="anomaly-alert" class="hidden"></div>
+      <div id="forecast-box"></div>
+    </section>
+
+    <!-- Member 4: chat advisor UI -->
+    <section id="chat-advisor">
+      <h2>Ask Your Finance Coach</h2>
+      <div id="chat-log"></div>
+      <input type="text" id="chat-input" placeholder="Ask a question about your spending...">
+      <button id="chat-send">Send</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

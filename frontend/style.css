@@ -1,0 +1,53 @@
+/* BudgetBuddy AI - Stylesheet
+   Owner: Member 1
+   TODO: build out the actual visual design here */
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f6f8f7;
+  color: #1a1a1a;
+}
+
+header {
+  background: #1f6f4a;
+  color: white;
+  padding: 24px;
+  text-align: center;
+}
+
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+section {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+form input, form button {
+  padding: 8px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.hidden {
+  display: none;
+}
+
+#anomaly-alert {
+  background: #fff3cd;
+  border: 1px solid #ffe08a;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
