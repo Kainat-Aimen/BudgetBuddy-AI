@@ -1,39 +1,69 @@
-"""
-BudgetBuddy AI - Auto-Categorization
-Owner: Member 3
-
-TODO:
-1. Expand KEYWORD_MAP with more real-world merchant names.
-2. (Stretch) Replace/augment with a trained TF-IDF + Logistic Regression
-   classifier for descriptions the dictionary doesn't cover.
-"""
-
-KEYWORD_MAP = {
-    "careem": "Transport",
-    "uber": "Transport",
-    "foodpanda": "Food",
-    "kfc": "Food",
-    "mcdonalds": "Food",
-    "k-electric": "Bills",
-    "ptcl": "Bills",
-    "jazz": "Bills",
-    "daraz": "Shopping",
-    "grocery": "Groceries",
-    "imtiaz": "Groceries",
+CATEGORY_KEYWORDS = {
+    "Transport": [
+        "careem",
+        "uber",
+        "bykea",
+        "indrive",
+        "fuel",
+        "petrol",
+        "parking",
+        "bus",
+        "train",
+    ],
+    "Food": [
+        "foodpanda",
+        "restaurant",
+        "burger",
+        "pizza",
+        "kfc",
+        "mcdonald",
+        "food",
+        "cafe",
+        "coffee",
+    ],
+    "Shopping": [
+        "daraz",
+        "amazon",
+        "clothes",
+        "shoes",
+        "shopping",
+        "mall",
+    ],
+    "Bills": [
+        "electricity",
+        "gas",
+        "water",
+        "internet",
+        "bill",
+        "k-electric",
+        "ptcl",
+    ],
+    "Entertainment": [
+        "netflix",
+        "spotify",
+        "youtube",
+        "movie",
+        "cinema",
+        "game",
+    ],
+    "Healthcare": [
+        "hospital",
+        "doctor",
+        "pharmacy",
+        "medicine",
+        "clinic",
+    ],
 }
-
-
 def categorize(description: str) -> str:
     """
-    Returns a category string for a given transaction description.
-    Falls back to 'Other' if nothing matches.
+    Predict the category of a transaction based on its description.
     """
-    if not description:
-        return "Other"
 
-    text = description.lower()
-    for keyword, category in KEYWORD_MAP.items():
-        if keyword in text:
-            return category
+    description = description.lower()
+
+    for category, keywords in CATEGORY_KEYWORDS.items():
+        for keyword in keywords:
+            if keyword in description:
+                return category
 
     return "Other"
