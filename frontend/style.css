@@ -1,0 +1,765 @@
+/* ==========================================================================
+   BudgetBuddy AI — Stylesheet
+   Design tokens: warm tangerine/gold gradient, ivory background, teal accent
+   ========================================================================== */
+
+/* @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap'); */
+
+:root {
+  --ivory: #FFF3E4;
+  --card: #FFFFFF;
+  --charcoal: #1F2937;
+  --muted: #6B7280;
+  --teal: #0EA5A5;
+  --teal-dark: #0B7C7C;
+  --orange-1: #FF8A3D;
+  --orange-2: #FFC93D;
+  --line: #F0E4D4;
+
+  --purple: #8B5CF6;
+  --pink: #FB7185;
+  --sky: #38BDF8;
+  --green: #34D399;
+  --gold: #FBBF24;
+
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 10px 30px -12px rgba(31, 41, 55, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ivory);
+  color: var(--charcoal);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .display-num {
+  font-family: 'Baloo 2', sans-serif;
+  margin: 0;
+}
+
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+}
+
+/* ---------- Top bar ---------- */
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 32px 80px;
+}
+
+/* ---------- Sidebar layout ---------- */
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  background: var(--card);
+  padding: 28px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  box-shadow: 2px 0 16px -10px rgba(31,41,55,0.15);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px;
+}
+
+.sidebar-brand .brand-name {
+  font-size: 16.5px;
+  line-height: 1.2;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 14.5px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link .icon {
+  font-size: 17px;
+}
+
+.sidebar-link:hover {
+  background: rgba(31,41,55,0.05);
+  color: var(--charcoal);
+}
+
+.sidebar-link.active {
+  background: linear-gradient(135deg, var(--orange-1), var(--orange-2));
+  color: #3A2200;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 6px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.sidebar-footer .avatar-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--charcoal);
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 22px 32px 0;
+}
+
+@media (max-width: 760px) {
+  .shell { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 18px;
+  }
+  .sidebar-nav { flex-direction: row; flex: 1; }
+  .sidebar-footer { display: none; }
+  .sidebar-link span:not(.icon) { display: none; }
+  .sidebar-link { padding: 10px; }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--orange-1), var(--orange-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+}
+
+.brand-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-family: 'Baloo 2', sans-serif;
+}
+
+/* ---------- Nav tabs (shared across dashboard/savings/assistant) ---------- */
+.nav-tabs {
+  display: flex;
+  gap: 6px;
+  background: rgba(31,41,55,0.06);
+  padding: 5px;
+  border-radius: 999px;
+}
+
+.nav-tab {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 13.5px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-tab:hover {
+  color: var(--charcoal);
+}
+
+.nav-tab.active {
+  background: var(--card);
+  color: var(--charcoal);
+  box-shadow: 0 2px 8px -2px rgba(31,41,55,0.25);
+}
+
+@media (max-width: 640px) {
+  .nav-tabs { order: 3; width: 100%; justify-content: center; margin-top: 14px; }
+  .topbar { flex-wrap: wrap; }
+}
+
+/* ---------- Balance hero card ---------- */
+.balance-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  background: linear-gradient(135deg, var(--orange-1), var(--orange-2));
+  color: #3A2200;
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+}
+
+.balance-card::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  top: -110px;
+  right: -60px;
+}
+
+.balance-card::after {
+  content: "";
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  bottom: -70px;
+  right: 60px;
+}
+
+.balance-label {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.85;
+  position: relative;
+}
+
+.balance-amount {
+  font-size: 42px;
+  font-weight: 800;
+  margin: 6px 0 18px;
+  position: relative;
+}
+
+.balance-split {
+  display: flex;
+  gap: 28px;
+  position: relative;
+}
+
+.balance-split div span {
+  display: block;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.balance-split div strong {
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 18px;
+}
+
+/* ---------- Quick actions ---------- */
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.quick-actions button {
+  flex: 1;
+  border: none;
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 14px 10px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--charcoal);
+  box-shadow: 0 4px 14px -8px rgba(31,41,55,0.25);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.quick-actions button:hover { transform: translateY(-2px); }
+
+/* ---------- Section headers ---------- */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.section-head h2 {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.text-link {
+  background: none;
+  border: none;
+  color: var(--teal-dark);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+/* ---------- Savings goals ---------- */
+.goals-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.goal-card {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 4px 14px -10px rgba(31,41,55,0.2);
+  text-align: center;
+}
+
+.goal-ring {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--charcoal);
+}
+
+.goal-name {
+  font-weight: 600;
+  font-size: 13.5px;
+  margin-bottom: 2px;
+}
+
+.goal-amounts {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.add-goal-card {
+  border: 2px dashed #E8D8C2;
+  background: transparent;
+  color: var(--muted);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  min-height: 130px;
+}
+
+/* ---------- Two-column: chart + transactions ---------- */
+.grid-two {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.panel {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 4px 14px -10px rgba(31,41,55,0.2);
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tx-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tx-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tx-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.tx-meta { flex: 1; }
+.tx-desc { font-weight: 600; font-size: 13.5px; }
+.tx-date { font-size: 11.5px; color: var(--muted); }
+.tx-amount { font-weight: 700; font-size: 13.5px; }
+.tx-amount.negative { color: #E4573D; }
+.tx-amount.positive { color: var(--teal-dark); }
+
+.anomaly-banner {
+  background: #FFF0E0;
+  border: 1px solid #FFD9A8;
+  color: #8A4B00;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Forms (add transaction / receipt scan) ---------- */
+.form-panel {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 26px;
+  box-shadow: 0 4px 14px -10px rgba(31,41,55,0.2);
+}
+
+.form-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.form-row input {
+  flex: 1;
+  min-width: 130px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line);
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+  background: #FFFDF9;
+}
+
+.form-row input:focus {
+  outline: none;
+  border-color: var(--orange-1);
+}
+
+.btn-primary {
+  border: none;
+  background: linear-gradient(135deg, var(--orange-1), var(--orange-2));
+  color: #3A2200;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.btn-secondary {
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--charcoal);
+  font-weight: 600;
+  padding: 11px 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+/* ---------- Chat advisor ---------- */
+.chat-panel {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: 0 4px 14px -10px rgba(31,41,55,0.2);
+}
+
+#chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding-right: 4px;
+}
+
+.chat-bubble {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+.chat-bubble.user {
+  background: #FFF0DE;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.bot {
+  background: #E7F7F5;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input-row input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  font-family: 'Inter', sans-serif;
+  font-size: 13.5px;
+}
+
+.chat-input-row input:focus {
+  outline: none;
+  border-color: var(--teal);
+}
+
+.chat-input-row button {
+  border: none;
+  background: var(--teal);
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* ---------- Login / Signup page ---------- */
+.auth-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+}
+
+.auth-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-form .brand { margin-bottom: 30px; }
+
+.auth-form h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.auth-form p.sub {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 26px;
+  line-height: 1.5;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.field input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  background: #FFFDF9;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--orange-1);
+}
+
+.auth-submit {
+  width: 100%;
+  border: none;
+  background: linear-gradient(135deg, var(--orange-1), var(--orange-2));
+  color: #3A2200;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.auth-divider {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12.5px;
+  margin: 20px 0;
+}
+
+.auth-switch {
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-top: 18px;
+}
+
+.auth-switch button {
+  background: none;
+  border: none;
+  color: var(--teal-dark);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.auth-visual-side {
+  flex: 1;
+  position: relative;
+  background:
+    linear-gradient(160deg, rgba(255,190,140,0.55), rgba(255,225,160,0.55)),
+    url("images/auth-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.auth-visual-side .blob {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  z-index: 1;
+}
+
+.auth-visual-side .blob.b1 { width: 280px; height: 280px; top: -80px; left: -60px; }
+.auth-visual-side .blob.b2 { width: 200px; height: 200px; bottom: -60px; right: -40px; }
+.auth-visual-side .blob.b3 { width: 120px; height: 120px; top: 40%; right: 20%; background: rgba(255,255,255,0.1); }
+
+.auth-visual-content {
+  position: relative;
+  z-index: 2;
+  color: #3A2200;
+  text-align: center;
+  padding: 36px 40px;
+  max-width: 400px;
+  background: linear-gradient(135deg, rgba(255,138,61,0.9), rgba(255,201,61,0.9));
+  border-radius: 24px;
+  box-shadow: 0 12px 30px -10px rgba(120,60,10,0.35);
+}
+
+.auth-visual-content h2 {
+  font-size: 32px;
+  line-height: 1.25;
+  margin-bottom: 14px;
+}
+
+.auth-visual-content p {
+  font-size: 16px;
+  line-height: 1.55;
+  opacity: 0.92;
+}
+
+@media (max-width: 760px) {
+  .auth-visual-side { display: none; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .grid-two { grid-template-columns: 1fr; }
+  .balance-amount { font-size: 34px; }
+  .quick-actions { flex-wrap: wrap; }
+  .quick-actions button { flex: 1 1 45%; }
+}

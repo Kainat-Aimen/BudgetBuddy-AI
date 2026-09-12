@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudgetBuddy AI — Assistant</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark">💰</div>
+      <div class="brand-name">BudgetBuddy AI</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span><span>Dashboard</span></a>
+      <a href="savings.html" class="sidebar-link"><span class="icon">🎯</span><span>Savings</span></a>
+      <a href="assistant.html" class="sidebar-link active"><span class="icon">🤖</span><span>Assistant</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar">A</div>
+      <div class="avatar-name">Aina</div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <div class="page-topbar">
+      <div class="avatar">A</div>
+    </div>
+
+    <div class="app">
+
+      <!-- Receipt scanner -->
+      <div class="form-panel" id="receipt-panel">
+        <div class="section-head"><h2>📷 Scan a Receipt</h2></div>
+        <p style="color:var(--muted); font-size:13.5px; margin-top:-6px;">
+          Upload a photo of a receipt and BudgetBuddy will read the amount, vendor, and date for you.
+        </p>
+        <div class="form-row">
+          <input type="file" id="receipt-upload" accept="image/*">
+          <button class="btn-primary" id="scan-btn">Scan &amp; Auto-fill</button>
+        </div>
+        <form id="scanned-transaction-form" class="hidden" style="margin-top:16px;">
+          <div class="form-row">
+            <input type="number" id="amount" placeholder="Amount (Rs.)" required>
+            <input type="text" id="description" placeholder="Vendor / description" required>
+            <input type="date" id="date" required>
+          </div>
+          <div class="form-row" style="margin-top:12px;">
+            <button type="submit" class="btn-primary">Confirm &amp; Save</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- AI Chat Advisor -->
+      <div class="chat-panel">
+        <div class="section-head"><h2>Ask BudgetBuddy 🤖</h2></div>
+        <div id="chat-log"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="e.g. Where did most of my money go this month?">
+          <button id="chat-send">➤</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<script src="common.js"></script>
+<script src="assistant.js"></script>
+</body>
+</html>

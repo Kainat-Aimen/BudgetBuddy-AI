@@ -1,0 +1,13 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Database
+*.db
+
+# Env files (never commit API keys!)
+.env
+
+# OS
+.DS_Store
