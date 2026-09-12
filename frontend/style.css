@@ -149,6 +149,44 @@ h1, h2, h3, .display-num {
   padding: 22px 32px 0;
 }
 
+.quick-actions button.active {
+  background: linear-gradient(135deg, var(--orange-1), var(--orange-2));
+  color: #3A2200;
+}
+
+.assistant-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.assistant-center .chat-panel {
+  width: 100%;
+  max-width: 700px;
+}
+
+.chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.chip {
+  border: 1.5px solid var(--line);
+  background: #FFFDF9;
+  color: var(--charcoal);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.chip:hover { background: var(--ivory); }
+
 @media (max-width: 760px) {
   .shell { flex-direction: column; }
   .sidebar {

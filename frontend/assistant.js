@@ -83,3 +83,9 @@ async function sendChat() {
     addChatBubble("I'll be able to answer this once the backend is connected!", "bot");
   }
 }
+document.querySelectorAll(".chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    document.getElementById("chat-input").value = chip.textContent.replace(/^\S+\s/, "");
+    sendChat();
+  });
+});

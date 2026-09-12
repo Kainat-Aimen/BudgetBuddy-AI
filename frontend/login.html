@@ -74,14 +74,20 @@
     document.getElementById("switch-btn").textContent = isSignup ? "Log in" : "Create an account";
   });
 
-  document.getElementById("auth-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    window.location.href = "dashboard.html";
-  });
+ document.getElementById("auth-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const nameField = document.getElementById("name");
+  const emailField = document.getElementById("email");
+  const enteredName = isSignup ? nameField.value.trim() : "";
+  const displayName = enteredName || emailField.value.split("@")[0] || "Guest";
+  localStorage.setItem("budgetbuddy_user_name", displayName);
+  window.location.href = "dashboard.html";
+});
 
-  document.getElementById("google-btn").addEventListener("click", () => {
-    window.location.href = "dashboard.html";
-  });
+document.getElementById("google-btn").addEventListener("click", () => {
+  localStorage.setItem("budgetbuddy_user_name", "Guest");
+  window.location.href = "dashboard.html";
+});
 </script>
 
 </body>

@@ -76,9 +76,39 @@ function showPanel(show) {
   document.getElementById("transaction-panel").classList.toggle("hidden", !show);
 }
 
-document.getElementById("show-add-transaction").addEventListener("click", () => showPanel(true));
-document.getElementById("show-add-income").addEventListener("click", () => showPanel(true));
-document.getElementById("cancel-transaction").addEventListener("click", () => showPanel(false));
+let transactionType = "expense";
+
+const expenseBtn = document.getElementById("show-add-transaction");
+const incomeBtn = document.getElementById("show-add-income");
+const panelTitle = document.getElementById("transaction-panel-title");
+const descInput = document.getElementById("description");
+const saveBtn = document.getElementById("save-transaction-btn");
+
+function setActiveButton(type) {
+  expenseBtn.classList.toggle("active", type === "expense");
+  incomeBtn.classList.toggle("active", type === "income");
+}
+
+function setPanelMode(type) {
+  transactionType = type;
+  setActiveButton(type);
+  if (type === "income") {
+    panelTitle.textContent = "Add Income";
+    descInput.placeholder = "Description (e.g. Monthly salary)";
+    saveBtn.textContent = "Save Income";
+  } else {
+    panelTitle.textContent = "Add Expense";
+    descInput.placeholder = "Description (e.g. Careem ride)";
+    saveBtn.textContent = "Save Expense";
+  }
+}
+
+expenseBtn.addEventListener("click", () => { setPanelMode("expense"); showPanel(true); });
+incomeBtn.addEventListener("click", () => { setPanelMode("income"); showPanel(true); });
+document.getElementById("cancel-transaction").addEventListener("click", () => {
+  showPanel(false);
+  setActiveButton(null);
+});
 
 // ---------- Add Transaction ----------
 document.getElementById("transaction-form").addEventListener("submit", async (e) => {
@@ -86,9 +116,9 @@ document.getElementById("transaction-form").addEventListener("submit", async (e)
   const amount = parseFloat(document.getElementById("amount").value);
   const description = document.getElementById("description").value;
   const date = document.getElementById("date").value;
+  const category = transactionType === "income" ? "Income" : "Other";
 
-  let newTx = { amount, description, category: "Other", date, is_anomaly: false };
-
+  let newTx = { amount, description, category, date, is_anomaly: false };
   try {
     const res = await fetch(`${API_BASE}/transactions`, {
       method: "POST",

@@ -65,3 +65,14 @@ async function loadGoals() {
     console.warn("Backend not reachable — using sample goals.", err);
   }
 }
+
+// ---------- Sidebar user info ----------
+function renderSidebarUser() {
+  const name = localStorage.getItem("budgetbuddy_user_name") || "Guest";
+  const initial = name.charAt(0).toUpperCase();
+
+  document.querySelectorAll(".sidebar-footer .avatar").forEach(el => el.textContent = initial);
+  document.querySelectorAll(".sidebar-footer .avatar-name").forEach(el => el.textContent = name);
+}
+
+renderSidebarUser();
