@@ -21,6 +21,7 @@
 
         <h1 id="auth-title">Welcome back</h1>
         <p class="sub" id="auth-sub">Track your spending, hit your savings goals, and let AI handle the numbers.</p>
+        <div id="auth-message" class="auth-message"></div>
 
         <form id="auth-form">
           <div class="field" id="name-field" style="display:none;">
@@ -84,6 +85,9 @@
       "submit",
       async (event) => {
         event.preventDefault();
+        const messageBox = document.getElementById("auth-message");
+        messageBox.textContent = "";
+        messageBox.classList.remove("show");
 
         const fullName = document
           .getElementById("name")
@@ -160,7 +164,8 @@
           window.location.href = "dashboard.html";
 
         } catch (error) {
-          alert(error.message);
+          messageBox.textContent = error.message;
+          messageBox.classList.add("show");
         }
       }
     );

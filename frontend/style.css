@@ -1071,3 +1071,18 @@ h3,
 .app-toast.error {
   background: #ef4444;
 }
+
+.auth-message {
+  display: none;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.auth-message.show {
+  display: block;
+}
