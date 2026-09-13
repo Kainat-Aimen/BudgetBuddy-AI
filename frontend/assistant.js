@@ -1,48 +1,133 @@
-// ==========================================================================
 // BudgetBuddy AI — Assistant Page Logic
-// Owner: Member 5 (Receipt Scanner/OCR) + Member 4 (Chat Advisor)
-// Depends on common.js being loaded first (API_BASE)
-// ==========================================================================
 
-
-// ---------- Chat Advisor (Member 4) ----------
 function addChatBubble(text, sender) {
   const log = document.getElementById("chat-log");
   const bubble = document.createElement("div");
+
   bubble.className = `chat-bubble ${sender}`;
   bubble.textContent = text;
+
   log.appendChild(bubble);
   log.scrollTop = log.scrollHeight;
 }
 
-document.getElementById("chat-send").addEventListener("click", sendChat);
-document.getElementById("chat-input").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendChat();
-});
+
+async function loadChatHistory() {
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/chat/history`,
+      {
+        method: "GET",
+        headers: authHeaders()
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401 || response.status === 422) {
+      redirectToLogin();
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || data.msg || "Could not load chat history"
+      );
+    }
+
+    const chatLog = document.getElementById("chat-log");
+    chatLog.innerHTML = "";
+
+    (data.messages || []).forEach(message => {
+      const sender =
+        message.role === "assistant" ? "bot" : "user";
+
+      addChatBubble(message.content, sender);
+    });
+  } catch (error) {
+    console.error("Chat history error:", error);
+  }
+}
+
 
 async function sendChat() {
   const input = document.getElementById("chat-input");
+  const sendButton = document.getElementById("chat-send");
   const question = input.value.trim();
+
   if (!question) return;
+  if (sendButton.disabled) return;
 
   addChatBubble(question, "user");
   input.value = "";
+  sendButton.disabled = true;
 
   try {
-    const res = await fetch(`${API_BASE}/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
-    });
-    const data = await res.json();
+    const response = await fetch(
+      `${API_BASE}/api/chat`,
+      {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ question })
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401 || response.status === 422) {
+      localStorage.removeItem("budgetbuddy_token");
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (!response.ok) {
+      addChatBubble(
+        data.error || data.msg || "Could not get an answer",
+        "bot"
+      );
+      return;
+    }
+
     addChatBubble(data.answer, "bot");
-  } catch (err) {
-    addChatBubble("I'll be able to answer this once the backend is connected!", "bot");
+  } catch (error) {
+    console.error("Chat error:", error);
+    addChatBubble(
+      "Cannot connect to the backend server.",
+      "bot"
+    );
+  } finally {
+    sendButton.disabled = false;
+    input.focus();
   }
 }
+
+
+document
+  .getElementById("chat-send")
+  .addEventListener("click", (event) => {
+    event.preventDefault();
+    sendChat();
+  });
+
+
+document
+  .getElementById("chat-input")
+  .addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendChat();
+    }
+  });
+
+
 document.querySelectorAll(".chip").forEach(chip => {
   chip.addEventListener("click", () => {
-    document.getElementById("chat-input").value = chip.textContent.replace(/^\S+\s/, "");
+    document.getElementById("chat-input").value =
+      chip.textContent.replace(/^\S+\s/, "");
+
     sendChat();
   });
 });
+
+
+loadChatHistory();

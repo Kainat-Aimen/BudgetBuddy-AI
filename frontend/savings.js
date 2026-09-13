@@ -53,31 +53,48 @@ function renderAll() {
 async function addFunds(id) {
   const goal = goals.find(g => g.id == id);
   if (!goal) return;
-  const amountStr = prompt(`Add how much to "${goal.name}"?`);
-  const amount = parseFloat(amountStr);
+
+  const amount = Number(
+    prompt(`Add how much to "${goal.name}"?`)
+  );
+
   if (!amount || amount <= 0) return;
 
-  const newSaved = goal.saved + amount;
   try {
-    const res = await fetch(`${API_BASE}/api/goals/${id}`, {
-      method: "PUT",
-      headers: authHeaders(),
-      body: JSON.stringify({ current_saved: newSaved }),
-    });
-    const updated = await res.json();
-    goal.saved = updated.current_saved;
-  } catch (err) {
-    console.warn("Backend not reachable — updating locally only.", err);
-    goal.saved = newSaved;
+    const response = await fetch(
+      `${API_BASE}/api/goals/${id}/progress`,
+      {
+        method: "PATCH",
+        headers: authHeaders(),
+        body: JSON.stringify({ amount })
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401 || response.status === 422) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (!response.ok) {
+      alert(data.error || "Could not add funds");
+      return;
+    }
+
+    await loadGoals();
+    renderAll();
+  } catch (error) {
+    console.error(error);
+    alert("Cannot connect to the backend server.");
   }
-  renderAll();
 }
 
 // ---------- Delete a goal ----------
 async function deleteGoal(id) {
   const goal = goals.find(g => g.id == id);
   if (!goal) return;
-  if (!confirm(`Delete goal "${goal.name}"?`)) return;
+
   try {
     await fetch(`${API_BASE}/api/goals/${id}`, { method: "DELETE", headers: authHeaders() });
   } catch (err) {
@@ -99,29 +116,48 @@ document.getElementById("cancel-goal").addEventListener("click", () => showPanel
 // ---------- Create Goal ----------
 document.getElementById("goal-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = document.getElementById("goal-name").value;
-  const target = parseFloat(document.getElementById("goal-target").value);
-  const startingSaved = parseFloat(document.getElementById("goal-saved").value) || 0;
-  const deadline = document.getElementById("goal-deadline").value;
 
-  let newGoal = { id: Date.now(), name, target, saved: startingSaved, deadline };
+  const payload = {
+    name: document.getElementById("goal-name").value.trim(),
+    target_amount: Number(
+      document.getElementById("goal-target").value
+    ),
+    deadline: document.getElementById("goal-deadline").value
+  };
 
   try {
-    const res = await fetch(`${API_BASE}/api/goals`, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify({ name, target_amount: target, current_saved: startingSaved, deadline }),
-    });
-    const saved = await res.json();
-    newGoal = { id: saved.id, name: saved.name, target: saved.target_amount, saved: saved.current_saved || 0, deadline };
-  } catch (err) {
-    console.warn("Backend not reachable yet — using local fallback.", err);
-  }
+    const response = await fetch(
+      `${API_BASE}/api/goals`,
+      {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload)
+      }
+    );
 
-  goals.push(newGoal);
-  e.target.reset();
-  showPanel(false);
-  renderAll();
+    const data = await response.json();
+
+    if (response.status === 401 || response.status === 422) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    if (!response.ok) {
+      alert(data.error || data.msg || "Could not create goal");
+      return;
+    }
+
+    e.target.reset();
+    showPanel(false);
+
+    await loadGoals();
+    renderAll();
+
+    alert(data.message || "Goal created successfully");
+  } catch (error) {
+    console.error(error);
+    alert("Cannot connect to the backend server.");
+  }
 });
 
 // ---------- Init ----------

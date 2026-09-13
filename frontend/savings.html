@@ -1,81 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BudgetBuddy AI — Savings</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BudgetBuddy AI — Savings</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="shell">
+  <div class="shell">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <a href="dashboard.html" class="sidebar-brand" style="text-decoration:none;">
-      <div class="brand-mark">💰</div>
-      <div class="brand-name">BudgetBuddy AI</div>
-    </a>
-    <nav class="sidebar-nav">
-      <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span><span>Dashboard</span></a>
-      <a href="savings.html" class="sidebar-link active"><span class="icon">🎯</span><span>Savings</span></a>
-      <a href="assistant.html" class="sidebar-link"><span class="icon">🤖</span><span>Assistant</span></a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="avatar">A</div>
-      <div class="avatar-name">Aina</div>
-    </div>
-  </aside>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="dashboard.html" class="sidebar-brand" style="text-decoration:none;">
+        <div class="brand-mark">💰</div>
+        <div class="brand-name">BudgetBuddy AI</div>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span><span>Dashboard</span></a>
+        <a href="savings.html" class="sidebar-link active"><span class="icon">🎯</span><span>Savings</span></a>
+        <a href="assistant.html" class="sidebar-link"><span class="icon">🤖</span><span>Assistant</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar">A</div>
+        <div class="avatar-name">Aina</div>
+        <button type="button" class="logout-button" title="Logout" aria-label="Logout">
+          ↪
+        </button>
+      </div>
+    </aside>
 
-  <!-- Main content -->
-  <main class="main-content">
-    
+    <!-- Main content -->
+    <main class="main-content">
 
-    <div class="app">
 
-      <!-- Savings summary -->
-      <div class="balance-card">
-        <div class="balance-label">Total Saved Across Goals</div>
-        <div class="balance-amount" id="total-saved">Rs. 0</div>
-        <div class="balance-split">
-          <div><span>Target</span><strong id="total-target">Rs. 0</strong></div>
-          <div><span>Goals</span><strong id="goal-count">0</strong></div>
+      <div class="app">
+
+        <!-- Savings summary -->
+        <div class="balance-card">
+          <div class="balance-label">Total Saved Across Goals</div>
+          <div class="balance-amount" id="total-saved">Rs. 0</div>
+          <div class="balance-split">
+            <div><span>Target</span><strong id="total-target">Rs. 0</strong></div>
+            <div><span>Goals</span><strong id="goal-count">0</strong></div>
+          </div>
         </div>
-      </div>
 
-      <!-- Savings goals -->
-      <div class="section-head">
-        <h2>Your Savings Goals</h2>
-        <button class="text-link" id="add-goal-trigger">+ New goal</button>
-      </div>
-      <div class="goals-row" id="goals-row">
-        <div class="add-goal-card" id="add-goal-card">
-          <span style="font-size:22px;">＋</span>
-          <span>Add Goal</span>
+        <!-- Savings goals -->
+        <div class="section-head">
+          <h2>Your Savings Goals</h2>
+          <button class="text-link" id="add-goal-trigger">+ New goal</button>
         </div>
-      </div>
+        <div class="goals-row" id="goals-row">
+          <div class="add-goal-card" id="add-goal-card">
+            <span style="font-size:22px;">＋</span>
+            <span>Add Goal</span>
+          </div>
+        </div>
 
-      <!-- Add goal form -->
-      <div class="form-panel hidden" id="goal-panel">
-       <div class="section-head"><h2>New Savings Goal</h2></div>
-        <form id="goal-form">
-           <div class="form-row">
+        <!-- Add goal form -->
+        <div class="form-panel hidden" id="goal-panel">
+          <div class="section-head">
+            <h2>New Savings Goal</h2>
+          </div>
+          <form id="goal-form">
+            <div class="form-row">
               <input type="text" id="goal-name" placeholder="Goal name (e.g. Travel)" required>
               <input type="number" id="goal-target" placeholder="Target amount" required>
               <input type="number" id="goal-saved" placeholder="Already saved (optional)" min="0">
               <input type="date" id="goal-deadline" required>
-           </div>
-              <div class="form-row" style="margin-top:12px;">
+            </div>
+            <div class="form-row" style="margin-top:12px;">
               <button type="submit" class="btn-primary">Create Goal</button>
-               <button type="button" class="btn-secondary" id="cancel-goal">Cancel</button>
-           </div>
-        </form>
-      </div>
-  </main>
+              <button type="button" class="btn-secondary" id="cancel-goal">Cancel</button>
+            </div>
+          </form>
+        </div>
+    </main>
 
-</div>
+  </div>
 
-<script src="common.js"></script>
-<script src="savings.js"></script>
+  <script src="common.js"></script>
+  <script src="savings.js"></script>
 </body>
+
 </html>

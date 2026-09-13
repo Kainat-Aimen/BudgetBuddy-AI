@@ -1,80 +1,255 @@
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://127.0.0.1:5000";
+
+const token = localStorage.getItem("budgetbuddy_token");
+
+if (!token) {
+  window.location.replace("login.html");
+}
+
 
 const CATEGORY_STYLES = {
-  Food:       { color: "#FB7185", icon: "🍔" },
-  Transport:  { color: "#38BDF8", icon: "🚗" },
-  Bills:      { color: "#8B5CF6", icon: "💡" },
-  Shopping:   { color: "#FBBF24", icon: "🛍️" },
-  Groceries:  { color: "#34D399", icon: "🛒" },
-  Other:      { color: "#9CA3AF", icon: "💳" },
+  Food: {
+    color: "#FB7185",
+    icon: "🍔"
+  },
+  Transport: {
+    color: "#38BDF8",
+    icon: "🚗"
+  },
+  Bills: {
+    color: "#8B5CF6",
+    icon: "💡"
+  },
+  Shopping: {
+    color: "#FBBF24",
+    icon: "🛍️"
+  },
+  Groceries: {
+    color: "#34D399",
+    icon: "🛒"
+  },
+  Other: {
+    color: "#9CA3AF",
+    icon: "💳"
+  }
 };
 
-const GOAL_COLORS = ["#8B5CF6", "#38BDF8", "#34D399", "#FBBF24", "#FB7185", "#0EA5A5"];
 
-let transactions = [
-  { id: 1, amount: 1200, description: "Foodpanda order", category: "Food", date: "2026-09-08" },
-  { id: 2, amount: 450, description: "Careem ride", category: "Transport", date: "2026-09-08" },
-  { id: 3, amount: 6000, description: "K-Electric bill", category: "Bills", date: "2026-09-05" },
-  { id: 4, amount: 2200, description: "Daraz order", category: "Shopping", date: "2026-09-03" },
-  { id: 5, amount: 60000, description: "Monthly salary", category: "Income", date: "2026-09-01" },
+const GOAL_COLORS = [
+  "#8B5CF6",
+  "#38BDF8",
+  "#34D399",
+  "#FBBF24",
+  "#FB7185",
+  "#0EA5A5"
 ];
 
-let goals = [
-  { id: 1, name: "Investment", target: 50000, saved: 30000 },
-  { id: 2, name: "Education", target: 40000, saved: 12000 },
-  { id: 3, name: "Travel", target: 25000, saved: 20000 },
-  { id: 4, name: "Emergency Fund", target: 60000, saved: 27000 },
-];
 
-function money(n) {
-  return "Rs. " + Number(n).toLocaleString();
+let transactions = [];
+let goals = [];
+
+
+function money(amount) {
+  return `Rs. ${Number(amount).toLocaleString()}`;
 }
 
-function categoryStyle(cat) {
-  return CATEGORY_STYLES[cat] || CATEGORY_STYLES.Other;
+
+function categoryStyle(category) {
+  return CATEGORY_STYLES[category] || CATEGORY_STYLES.Other;
 }
 
-// Sends the saved login token with every backend request.
+
 function authHeaders() {
-  const token = localStorage.getItem("budgetbuddy_token");
-  return token
-    ? { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
-    : { "Content-Type": "application/json" };
+  const accessToken = localStorage.getItem(
+    "budgetbuddy_token"
+  );
+
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${accessToken}`
+  };
 }
+
+
+function redirectToLogin() {
+  localStorage.removeItem("budgetbuddy_token");
+  localStorage.removeItem("budgetbuddy_user_name");
+  window.location.replace("login.html");
+}
+
+
+function showToast(message, type = "success") {
+  const previousToast = document.querySelector(".app-toast");
+
+  if (previousToast) {
+    previousToast.remove();
+  }
+
+  const toast = document.createElement("div");
+
+  toast.className = `app-toast ${type}`;
+  toast.textContent = message;
+
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("show");
+  }, 10);
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 2500);
+}
+
 
 async function loadTransactions() {
   try {
-    const res = await fetch(`${API_BASE}/api/transactions`, { headers: authHeaders() });
-    const data = await res.json();
-    if (Array.isArray(data) && data.length) transactions = data;
-  } catch (err) {
-    console.warn("Backend not reachable — using sample data.", err);
+    const response = await fetch(
+      `${API_BASE}/api/transactions`,
+      {
+        method: "GET",
+        headers: authHeaders()
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401 || response.status === 422) {
+      redirectToLogin();
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ||
+        data.msg ||
+        "Could not load transactions"
+      );
+    }
+
+    transactions = data.transactions || [];
+  } catch (error) {
+    console.error("Transactions error:", error);
+    transactions = [];
   }
 }
+
 
 async function loadGoals() {
   try {
-    const res = await fetch(`${API_BASE}/api/goals`, { headers: authHeaders() });
-    const data = await res.json();
-    if (Array.isArray(data) && data.length) {
-      goals = data.map(g => ({
-        id: g.id,
-        name: g.name,
-        target: g.target_amount,
-        saved: g.current_saved,
-        deadline: g.deadline,
-      }));
+    const response = await fetch(
+      `${API_BASE}/api/goals`,
+      {
+        method: "GET",
+        headers: authHeaders()
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401 || response.status === 422) {
+      redirectToLogin();
+      return;
     }
-  } catch (err) {
-    console.warn("Backend not reachable — using sample goals.", err);
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ||
+        data.msg ||
+        "Could not load goals"
+      );
+    }
+
+    goals = (data.goals || []).map(goal => ({
+      id: goal.id,
+      name: goal.name,
+      target: Number(goal.target_amount),
+      saved: Number(goal.current_saved),
+      deadline: goal.deadline
+    }));
+  } catch (error) {
+    console.error("Goals error:", error);
+    goals = [];
   }
 }
 
-// ---------- Sidebar user info ----------
+
 function renderSidebarUser() {
-  const name = localStorage.getItem("budgetbuddy_user_name") || "Guest";
+  const name =
+    localStorage.getItem("budgetbuddy_user_name") ||
+    "Guest";
+
   const initial = name.charAt(0).toUpperCase();
-  document.querySelectorAll(".sidebar-footer .avatar").forEach(el => el.textContent = initial);
-  document.querySelectorAll(".sidebar-footer .avatar-name").forEach(el => el.textContent = name);
+
+  document
+    .querySelectorAll(".sidebar-footer .avatar")
+    .forEach(element => {
+      element.textContent = initial;
+    });
+
+  document
+    .querySelectorAll(".sidebar-footer .avatar-name")
+    .forEach(element => {
+      element.textContent = name;
+    });
 }
+
+
+async function loadCurrentUser() {
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/auth/me`,
+      {
+        method: "GET",
+        headers: authHeaders()
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.status === 401 || response.status === 422) {
+      redirectToLogin();
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ||
+        data.msg ||
+        "Could not load user"
+      );
+    }
+
+    const user = data.user || data;
+    const fullName = user.full_name || "User";
+
+    localStorage.setItem(
+      "budgetbuddy_user_name",
+      fullName
+    );
+
+    renderSidebarUser();
+  } catch (error) {
+    console.error("User profile error:", error);
+  }
+}
+
+
+function logout() {
+  redirectToLogin();
+}
+
+
+document
+  .querySelectorAll(".logout-button")
+  .forEach(button => {
+    button.addEventListener("click", logout);
+  });
+
+
 renderSidebarUser();
+loadCurrentUser();
