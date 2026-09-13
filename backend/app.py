@@ -1,107 +1,79 @@
-"""
-BudgetBuddy AI - Flask Backend
-Owner: Member 2
+import os
+from pathlib import Path
 
-This is the main entry point. Import and call the module functions
-built by Members 3-6 here, rather than writing their logic inline.
-"""
-
-from flask import Flask, request, jsonify
+from dotenv import load_dotenv
+from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 
-from database.models import init_db, save_transaction, get_transactions, save_goal, get_goals
-from modules.categorization import categorize
-from modules.anomaly_detection import is_anomaly
-from modules.chat_advisor import get_advice
-from modules.ocr_scanner import scan_receipt
-from modules.forecast import forecast_next_month
+from database.models import db
+from routes.auth_routes import auth_routes
+from routes.transaction_routes import transaction_routes
+from routes.dashboard_routes import dashboard_routes
+from routes.budget_routes import budget_routes
+from routes.goal_routes import goal_routes
+from routes.chat_routes import chat_routes
+
+load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # allows the frontend (served separately) to call this API
+CORS(app)
 
-init_db()
+BASE_DIR = Path(__file__).resolve().parent
+DATABASE_PATH = (BASE_DIR / "budgetbuddy.db").as_posix()
 
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    f"sqlite:///{DATABASE_PATH}"
+)
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
 
-@app.route("/transactions", methods=["POST"])
-def add_transaction():
-    """
-    Expects JSON: { "amount": float, "description": str, "date": "YYYY-MM-DD" }
-    TODO (Member 2): validate input
-    TODO (Member 3): categorization + anomaly detection are already wired below
-    """
-    data = request.get_json()
-    amount = data.get("amount")
-    description = data.get("description", "")
-    date = data.get("date")
-
-    category = categorize(description)
-    history = get_transactions(category=category)
-    flagged = is_anomaly(amount, category, history)
-
-    transaction = save_transaction(
-        amount=amount,
-        description=description,
-        category=category,
-        date=date,
-        is_anomaly=flagged,
-        source="manual",
+if not app.config["JWT_SECRET_KEY"]:
+    raise RuntimeError(
+        "JWT_SECRET_KEY is missing from the .env file"
     )
-    return jsonify(transaction), 201
+
+db.init_app(app)
+jwt = JWTManager(app)
+
+app.register_blueprint(
+    auth_routes,
+    url_prefix="/api/auth"
+)
+
+app.register_blueprint(
+    transaction_routes,
+    url_prefix="/api"
+)
+
+app.register_blueprint(
+    dashboard_routes,
+    url_prefix="/api"
+)
+
+app.register_blueprint(
+    budget_routes,
+    url_prefix="/api"
+)
+
+app.register_blueprint(
+    goal_routes,
+    url_prefix="/api"
+)
+
+app.register_blueprint(
+    chat_routes,
+    url_prefix="/api"
+)
+with app.app_context():
+    db.create_all()
 
 
-@app.route("/transactions", methods=["GET"])
-def list_transactions():
-    return jsonify(get_transactions())
-
-
-@app.route("/goals", methods=["POST"])
-def add_goal():
-    """
-    Expects JSON: { "target_amount": float, "deadline": "YYYY-MM-DD" }
-    TODO (Member 6): hook up progress-tracking logic here
-    """
-    data = request.get_json()
-    goal = save_goal(target_amount=data.get("target_amount"), deadline=data.get("deadline"))
-    return jsonify(goal), 201
-
-
-@app.route("/goals", methods=["GET"])
-def list_goals():
-    return jsonify(get_goals())
-
-
-@app.route("/chat", methods=["POST"])
-def chat():
-    """
-    Expects JSON: { "question": str }
-    TODO (Member 4): implement get_advice() in modules/chat_advisor.py
-    """
-    data = request.get_json()
-    question = data.get("question", "")
-    transactions = get_transactions()
-    answer = get_advice(question, transactions)
-    return jsonify({"answer": answer})
-
-
-@app.route("/scan-receipt", methods=["POST"])
-def scan_receipt_route():
-    """
-    Expects a multipart/form-data image upload under the key 'receipt'.
-    TODO (Member 5): implement scan_receipt() in modules/ocr_scanner.py
-    """
-    image_file = request.files.get("receipt")
-    extracted = scan_receipt(image_file)
-    return jsonify(extracted)
-
-
-@app.route("/forecast", methods=["GET"])
-def forecast():
-    """
-    TODO (Member 6): implement forecast_next_month() in modules/forecast.py
-    """
-    transactions = get_transactions()
-    prediction = forecast_next_month(transactions)
-    return jsonify(prediction)
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "ok"
+    })
 
 
 if __name__ == "__main__":

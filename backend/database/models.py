@@ -1,92 +1,188 @@
-"""
-BudgetBuddy AI - Database Layer
-Owner: Member 2
-
-Simple SQLite setup. Feel free to swap for SQLAlchemy if you prefer,
-just keep the function signatures the same so app.py doesn't break.
-"""
-
-import sqlite3
-
-DB_PATH = "budgetbuddy.db"
+from datetime import datetime, timezone
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
-def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+db = SQLAlchemy()
 
 
-def init_db():
-    conn = get_connection()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS transactions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            amount REAL NOT NULL,
-            description TEXT,
-            category TEXT,
-            date TEXT,
-            is_anomaly INTEGER DEFAULT 0,
-            source TEXT DEFAULT 'manual'
-        )
-    """)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS goals (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            target_amount REAL NOT NULL,
-            deadline TEXT,
-            current_saved REAL DEFAULT 0
-        )
-    """)
-    conn.commit()
-    conn.close()
+class User(db.Model):
+    __tablename__ = "users"
 
+    id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(255), nullable=False)
 
-def save_transaction(amount, description, category, date, is_anomaly=False, source="manual"):
-    conn = get_connection()
-    cur = conn.execute(
-        "INSERT INTO transactions (amount, description, category, date, is_anomaly, source) "
-        "VALUES (?, ?, ?, ?, ?, ?)",
-        (amount, description, category, date, int(is_anomaly), source),
+    transactions = db.relationship(
+        "Transaction",
+        backref="user",
+        lazy=True,
+        cascade="all, delete-orphan",
     )
-    conn.commit()
-    new_id = cur.lastrowid
-    conn.close()
-    return {
-        "id": new_id,
-        "amount": amount,
-        "description": description,
-        "category": category,
-        "date": date,
-        "is_anomaly": is_anomaly,
-        "source": source,
-    }
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 
-def get_transactions(category=None):
-    conn = get_connection()
-    if category:
-        rows = conn.execute("SELECT * FROM transactions WHERE category = ?", (category,)).fetchall()
-    else:
-        rows = conn.execute("SELECT * FROM transactions").fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+class Transaction(db.Model):
+    __tablename__ = "transactions"
 
-
-def save_goal(target_amount, deadline):
-    conn = get_connection()
-    cur = conn.execute(
-        "INSERT INTO goals (target_amount, deadline, current_saved) VALUES (?, ?, 0)",
-        (target_amount, deadline),
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(10), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    category = db.Column(db.String(50), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.String(255))
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False,
     )
-    conn.commit()
-    new_id = cur.lastrowid
-    conn.close()
-    return {"id": new_id, "target_amount": target_amount, "deadline": deadline, "current_saved": 0}
 
+    __table_args__ = (
+        db.CheckConstraint(
+            "type IN ('income', 'expense')",
+            name="valid_transaction_type",
+        ),
+        db.CheckConstraint(
+            "amount > 0",
+            name="positive_transaction_amount",
+        ),
+    )
 
-def get_goals():
-    conn = get_connection()
-    rows = conn.execute("SELECT * FROM goals").fetchall()
-    conn.close()
-    return [dict(row) for row in rows]
+class Budget(db.Model):
+    __tablename__ = "budgets"
+
+    id = db.Column(db.Integer, primary_key=True)
+    category = db.Column(
+        db.String(50),
+        nullable=False
+    )
+    limit_amount = db.Column(
+        db.Float,
+        nullable=False
+    )
+    month = db.Column(
+        db.String(7),
+        nullable=False
+    )
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
+    user = db.relationship(
+        "User",
+        backref="budgets"
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id",
+            "category",
+            "month",
+            name="unique_user_category_month"
+        ),
+        db.CheckConstraint(
+            "limit_amount > 0",
+            name="positive_budget_limit"
+        ),
+    )
+
+class SavingsGoal(db.Model):
+    __tablename__ = "savings_goals"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    name = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    target_amount = db.Column(
+        db.Float,
+        nullable=False
+    )
+
+    current_saved = db.Column(
+        db.Float,
+        nullable=False,
+        default=0
+    )
+
+    deadline = db.Column(
+        db.Date,
+        nullable=False
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
+    user = db.relationship(
+        "User",
+        backref="savings_goals"
+    )
+
+    __table_args__ = (
+        db.CheckConstraint(
+            "target_amount > 0",
+            name="positive_goal_target"
+        ),
+        db.CheckConstraint(
+            "current_saved >= 0",
+            name="valid_current_saved"
+        ),
+    )
+
+class ChatMessage(db.Model):
+    __tablename__ = "chat_messages"
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    role = db.Column(
+        db.String(20),
+        nullable=False
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
+    user = db.relationship(
+        "User",
+        backref="chat_messages"
+    )
+
+    __table_args__ = (
+        db.CheckConstraint(
+            "role IN ('user', 'assistant')",
+            name="valid_chat_role"
+        ),
+    )
