@@ -11,6 +11,7 @@ from database.models import (
 )
 from modules.chat_advisor import get_advice
 
+
 chat_routes = Blueprint(
     "chat_routes",
     __name__,
@@ -73,41 +74,47 @@ def chat():
         user_id=user_id
     ).all()
 
-    transaction_data = []
-
-    for transaction in transactions:
-        transaction_data.append({
+    transaction_data = [
+        {
             "type": transaction.type,
             "amount": transaction.amount,
             "category": transaction.category,
             "date": transaction.date.isoformat(),
-            "description": transaction.description
-        })
+            "description": transaction.description,
+        }
+        for transaction in transactions
+    ]
 
-    budget_data = []
-
-    for budget in budgets:
-        budget_data.append({
+    budget_data = [
+        {
             "category": budget.category,
             "limit_amount": budget.limit_amount,
-            "month": budget.month
-        })
+            "month": budget.month,
+        }
+        for budget in budgets
+    ]
 
     goal_data = []
 
     for goal in goals:
+        progress_percentage = 0
+
+        if goal.target_amount > 0:
+            progress_percentage = round(
+                (goal.current_saved / goal.target_amount) * 100,
+                2,
+            )
+
         goal_data.append({
             "name": goal.name,
             "target_amount": goal.target_amount,
             "current_saved": goal.current_saved,
-            "deadline": goal.deadline.isoformat(),
-            "progress_percentage": round(
-                (
-                    goal.current_saved
-                    / goal.target_amount
-                ) * 100,
-                2
-            )
+            "deadline": (
+                goal.deadline.isoformat()
+                if goal.deadline
+                else None
+            ),
+            "progress_percentage": progress_percentage,
         })
 
     total_income = float(total_income)
@@ -120,17 +127,17 @@ def chat():
             "total_expenses": total_expenses,
             "current_balance": (
                 total_income - total_expenses
-            )
+            ),
         },
         "transactions": transaction_data,
         "budgets": budget_data,
-        "savings_goals": goal_data
+        "savings_goals": goal_data,
     }
 
     answer = get_advice(
-    question,
-    financial_context
-)
+        question,
+        financial_context,
+    )
 
     user_message = ChatMessage()
     user_message.role = "user"
@@ -144,7 +151,7 @@ def chat():
 
     db.session.add_all([
         user_message,
-        assistant_message
+        assistant_message,
     ])
     db.session.commit()
 
@@ -152,4 +159,33 @@ def chat():
         "answer": answer
     }), 200
 
-    
+
+@chat_routes.route("/chat/history", methods=["GET"])
+@jwt_required()
+def get_chat_history():
+    user_id = int(get_jwt_identity())
+
+    messages = (
+        ChatMessage.query
+        .filter_by(user_id=user_id)
+        .order_by(ChatMessage.created_at.asc())
+        .all()
+    )
+
+    results = []
+
+    for message in messages:
+        results.append({
+            "id": message.id,
+            "role": message.role,
+            "content": message.content,
+            "created_at": (
+                message.created_at.isoformat()
+                if message.created_at
+                else None
+            ),
+        })
+
+    return jsonify({
+        "messages": results
+    }), 200

@@ -1,59 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BudgetBuddy AI — Assistant</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BudgetBuddy AI — Assistant</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="shell">
+  <div class="shell">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <a href="dashboard.html" class="sidebar-brand" style="text-decoration:none;">
-      <div class="brand-mark">💰</div>
-      <div class="brand-name">BudgetBuddy AI</div>
-    </a>
-    <nav class="sidebar-nav">
-      <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span><span>Dashboard</span></a>
-      <a href="savings.html" class="sidebar-link"><span class="icon">🎯</span><span>Savings</span></a>
-      <a href="assistant.html" class="sidebar-link active"><span class="icon">🤖</span><span>Assistant</span></a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="avatar">A</div>
-      <div class="avatar-name">Aina</div>
-    </div>
-  </aside>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="dashboard.html" class="sidebar-brand" style="text-decoration:none;">
+        <div class="brand-mark">💰</div>
+        <div class="brand-name">BudgetBuddy AI</div>
+      </a>
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span><span>Dashboard</span></a>
+        <a href="savings.html" class="sidebar-link"><span class="icon">🎯</span><span>Savings</span></a>
+        <a href="assistant.html" class="sidebar-link active"><span class="icon">🤖</span><span>Assistant</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar">A</div>
+        <div class="avatar-name">Aina</div>
+        <button type="button" class="logout-button" title="Logout" aria-label="Logout">
+          ↪
+        </button>
+      </div>
+    </aside>
 
-  <!-- Main content -->
-  <main class="main-content">
-    
+    <!-- Main content -->
+    <main class="main-content">
 
-    <div class="app assistant-center">
 
-      <!-- AI Chat Advisor -->
-      <div class="chat-panel">
-        <div class="section-head"><h2>Ask BudgetBuddy 🤖</h2></div>
-        <div id="chat-log"></div>
+      <div class="app assistant-center">
+
+        <!-- AI Chat Advisor -->
+        <div class="chat-panel">
+          <div class="section-head">
+            <h2>Ask BudgetBuddy 🤖</h2>
+          </div>
+          <div id="chat-log"></div>
           <div class="chat-input-row">
             <input type="text" id="chat-input" placeholder="e.g. Where did most of my money go this month?">
-            <button id="chat-send">➤</button>
+            <button type="button" id="chat-send">➤</button>
           </div>
-        <div class="chat-suggestions">
-          <button class="chip">💰 Where did most of my money go?</button>
-          <button class="chip">📊 How much did I spend on food?</button>
-          <button class="chip">🎯 Am I on track with my goals?</button>
+          <div class="chat-suggestions">
+            <button class="chip">💰 Where did most of my money go?</button>
+            <button class="chip">📊 How much did I spend on food?</button>
+            <button class="chip">🎯 Am I on track with my goals?</button>
+          </div>
         </div>
+
       </div>
+    </main>
 
-    </div>
-  </main>
+  </div>
 
-</div>
-
-<script src="common.js"></script>
-<script src="assistant.js"></script>
+  <script src="common.js"></script>
+  <script src="assistant.js"></script>
 </body>
+
 </html>
