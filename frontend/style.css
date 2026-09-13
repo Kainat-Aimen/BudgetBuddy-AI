@@ -443,6 +443,34 @@ h1, h2, h3, .display-num {
   min-height: 130px;
 }
 
+.goal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0.6;
+}
+
+.icon-btn:hover {
+  opacity: 1;
+  background: rgba(31,41,55,0.06);
+}
+
+.tx-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+
 /* ---------- Two-column: chart + transactions ---------- */
 .grid-two {
   display: grid;

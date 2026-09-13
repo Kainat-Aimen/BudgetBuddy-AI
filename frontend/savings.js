@@ -1,9 +1,3 @@
-// ==========================================================================
-// BudgetBuddy AI — Savings Page Logic
-// Owner: Member 6 (Savings Goal Tracker)
-// Depends on common.js being loaded first (money, goals, GOAL_COLORS)
-// ==========================================================================
-
 function renderSummary() {
   const totalSaved = goals.reduce((s, g) => s + g.saved, 0);
   const totalTarget = goals.reduce((s, g) => s + g.target, 0);
@@ -25,6 +19,7 @@ function renderGoals() {
 
     const card = document.createElement("div");
     card.className = "goal-card";
+    card.dataset.id = goal.id;
     card.innerHTML = `
       <div class="goal-ring" style="background: conic-gradient(${color} ${pct * 3.6}deg, #F0E4D4 0deg);">
         <div style="background:#fff; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
@@ -33,14 +28,63 @@ function renderGoals() {
       </div>
       <div class="goal-name">${goal.name}</div>
       <div class="goal-amounts">${money(goal.saved)} / ${money(goal.target)}</div>
+      <div class="goal-actions">
+        <button class="icon-btn add-funds" title="Add funds">➕ Add</button>
+        <button class="icon-btn delete-goal" title="Delete goal">🗑️</button>
+      </div>
     `;
     row.insertBefore(card, addCard);
+  });
+
+  row.querySelectorAll(".add-funds").forEach(btn => {
+    btn.addEventListener("click", (e) => addFunds(e.target.closest(".goal-card").dataset.id));
+  });
+  row.querySelectorAll(".delete-goal").forEach(btn => {
+    btn.addEventListener("click", (e) => deleteGoal(e.target.closest(".goal-card").dataset.id));
   });
 }
 
 function renderAll() {
   renderSummary();
   renderGoals();
+}
+
+// ---------- Add funds to an existing goal ----------
+async function addFunds(id) {
+  const goal = goals.find(g => g.id == id);
+  if (!goal) return;
+  const amountStr = prompt(`Add how much to "${goal.name}"?`);
+  const amount = parseFloat(amountStr);
+  if (!amount || amount <= 0) return;
+
+  const newSaved = goal.saved + amount;
+  try {
+    const res = await fetch(`${API_BASE}/api/goals/${id}`, {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify({ current_saved: newSaved }),
+    });
+    const updated = await res.json();
+    goal.saved = updated.current_saved;
+  } catch (err) {
+    console.warn("Backend not reachable — updating locally only.", err);
+    goal.saved = newSaved;
+  }
+  renderAll();
+}
+
+// ---------- Delete a goal ----------
+async function deleteGoal(id) {
+  const goal = goals.find(g => g.id == id);
+  if (!goal) return;
+  if (!confirm(`Delete goal "${goal.name}"?`)) return;
+  try {
+    await fetch(`${API_BASE}/api/goals/${id}`, { method: "DELETE", headers: authHeaders() });
+  } catch (err) {
+    console.warn("Backend not reachable — removing locally only.", err);
+  }
+  goals = goals.filter(g => g.id != id);
+  renderAll();
 }
 
 // ---------- Panel toggle ----------
@@ -52,25 +96,24 @@ document.getElementById("add-goal-trigger").addEventListener("click", () => show
 document.getElementById("add-goal-card").addEventListener("click", () => showPanel(true));
 document.getElementById("cancel-goal").addEventListener("click", () => showPanel(false));
 
-// ---------- Add Goal ----------
+// ---------- Create Goal ----------
 document.getElementById("goal-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const name = document.getElementById("goal-name").value;
   const target = parseFloat(document.getElementById("goal-target").value);
+  const startingSaved = parseFloat(document.getElementById("goal-saved").value) || 0;
   const deadline = document.getElementById("goal-deadline").value;
 
-  let newGoal = { name, target, saved: 0, deadline };
+  let newGoal = { id: Date.now(), name, target, saved: startingSaved, deadline };
 
-  // TODO (Member 6): once the backend /goals route accepts a 'name' field,
-  // switch this to a real fetch() the same way dashboard.js posts transactions.
   try {
-    const res = await fetch(`${API_BASE}/goals`, {
+    const res = await fetch(`${API_BASE}/api/goals`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target_amount: target, deadline }),
+      headers: authHeaders(),
+      body: JSON.stringify({ name, target_amount: target, current_saved: startingSaved, deadline }),
     });
     const saved = await res.json();
-    newGoal = { name, target: saved.target_amount, saved: saved.current_saved || 0, deadline };
+    newGoal = { id: saved.id, name: saved.name, target: saved.target_amount, saved: saved.current_saved || 0, deadline };
   } catch (err) {
     console.warn("Backend not reachable yet — using local fallback.", err);
   }

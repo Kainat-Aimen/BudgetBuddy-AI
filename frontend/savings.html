@@ -57,21 +57,20 @@
 
       <!-- Add goal form -->
       <div class="form-panel hidden" id="goal-panel">
-        <div class="section-head"><h2>New Savings Goal</h2></div>
+       <div class="section-head"><h2>New Savings Goal</h2></div>
         <form id="goal-form">
-          <div class="form-row">
-            <input type="text" id="goal-name" placeholder="Goal name (e.g. Travel)" required>
-            <input type="number" id="goal-target" placeholder="Target amount" required>
-            <input type="date" id="goal-deadline" required>
-          </div>
-          <div class="form-row" style="margin-top:12px;">
-            <button type="submit" class="btn-primary">Create Goal</button>
-            <button type="button" class="btn-secondary" id="cancel-goal">Cancel</button>
-          </div>
+           <div class="form-row">
+              <input type="text" id="goal-name" placeholder="Goal name (e.g. Travel)" required>
+              <input type="number" id="goal-target" placeholder="Target amount" required>
+              <input type="number" id="goal-saved" placeholder="Already saved (optional)" min="0">
+              <input type="date" id="goal-deadline" required>
+           </div>
+              <div class="form-row" style="margin-top:12px;">
+              <button type="submit" class="btn-primary">Create Goal</button>
+               <button type="button" class="btn-secondary" id="cancel-goal">Cancel</button>
+           </div>
         </form>
       </div>
-
-    </div>
   </main>
 
 </div>

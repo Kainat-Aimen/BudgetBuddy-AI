@@ -1,10 +1,6 @@
-// ==========================================================================
-// BudgetBuddy AI — Dashboard Page Logic
-// Owner: Member 1
-// Depends on common.js being loaded first (money, categoryStyle, transactions)
-// ==========================================================================
-
 let categoryChart = null;
+let transactionType = "expense";
+let editingTxId = null;
 
 function renderBalance() {
   const income = transactions.filter(t => t.category === "Income").reduce((s, t) => s + t.amount, 0);
@@ -51,7 +47,7 @@ function renderTransactions() {
     const isIncome = t.category === "Income";
     const style = categoryStyle(t.category);
     return `
-      <li class="tx-item">
+      <li class="tx-item" data-id="${t.id}">
         <div class="tx-icon" style="background:${style.color}22;">${style.icon}</div>
         <div class="tx-meta">
           <div class="tx-desc">${t.description}</div>
@@ -60,9 +56,20 @@ function renderTransactions() {
         <div class="tx-amount ${isIncome ? "positive" : "negative"}">
           ${isIncome ? "+" : "-"} ${money(t.amount)}
         </div>
+        <div class="tx-actions">
+          <button class="icon-btn edit-tx" title="Edit">✏️</button>
+          <button class="icon-btn delete-tx" title="Delete">🗑️</button>
+        </div>
       </li>
     `;
   }).join("");
+
+  list.querySelectorAll(".edit-tx").forEach(btn => {
+    btn.addEventListener("click", (e) => editTransaction(e.target.closest(".tx-item").dataset.id));
+  });
+  list.querySelectorAll(".delete-tx").forEach(btn => {
+    btn.addEventListener("click", (e) => deleteTransaction(e.target.closest(".tx-item").dataset.id));
+  });
 }
 
 function renderAll() {
@@ -71,18 +78,17 @@ function renderAll() {
   renderTransactions();
 }
 
-// ---------- Panel toggle ----------
-function showPanel(show) {
-  document.getElementById("transaction-panel").classList.toggle("hidden", !show);
-}
-
-let transactionType = "expense";
-
+// ---------- Panel toggle + expense/income mode ----------
 const expenseBtn = document.getElementById("show-add-transaction");
 const incomeBtn = document.getElementById("show-add-income");
 const panelTitle = document.getElementById("transaction-panel-title");
 const descInput = document.getElementById("description");
 const saveBtn = document.getElementById("save-transaction-btn");
+const categorySelect = document.getElementById("tx-category");
+
+function showPanel(show) {
+  document.getElementById("transaction-panel").classList.toggle("hidden", !show);
+}
 
 function setActiveButton(type) {
   expenseBtn.classList.toggle("active", type === "expense");
@@ -93,49 +99,94 @@ function setPanelMode(type) {
   transactionType = type;
   setActiveButton(type);
   if (type === "income") {
-    panelTitle.textContent = "Add Income";
+    panelTitle.textContent = editingTxId ? "Edit Income" : "Add Income";
     descInput.placeholder = "Description (e.g. Monthly salary)";
-    saveBtn.textContent = "Save Income";
+    saveBtn.textContent = editingTxId ? "Update Income" : "Save Income";
+    categorySelect.classList.add("hidden");
   } else {
-    panelTitle.textContent = "Add Expense";
+    panelTitle.textContent = editingTxId ? "Edit Expense" : "Add Expense";
     descInput.placeholder = "Description (e.g. Careem ride)";
-    saveBtn.textContent = "Save Expense";
+    saveBtn.textContent = editingTxId ? "Update Expense" : "Save Expense";
+    categorySelect.classList.remove("hidden");
   }
 }
 
-expenseBtn.addEventListener("click", () => { setPanelMode("expense"); showPanel(true); });
-incomeBtn.addEventListener("click", () => { setPanelMode("income"); showPanel(true); });
+expenseBtn.addEventListener("click", () => { editingTxId = null; setPanelMode("expense"); showPanel(true); });
+incomeBtn.addEventListener("click", () => { editingTxId = null; setPanelMode("income"); showPanel(true); });
 document.getElementById("cancel-transaction").addEventListener("click", () => {
   showPanel(false);
-  setActiveButton(null);
+  editingTxId = null;
 });
 
-// ---------- Add Transaction ----------
+// ---------- Edit ----------
+function editTransaction(id) {
+  const tx = transactions.find(t => t.id == id);
+  if (!tx) return;
+  editingTxId = id;
+  const type = tx.category === "Income" ? "income" : "expense";
+  setPanelMode(type);
+  document.getElementById("amount").value = tx.amount;
+  document.getElementById("description").value = tx.description;
+  document.getElementById("date").value = tx.date;
+  if (type === "expense") categorySelect.value = tx.category;
+  showPanel(true);
+}
+
+// ---------- Delete ----------
+async function deleteTransaction(id) {
+  if (!confirm("Delete this transaction?")) return;
+  try {
+    await fetch(`${API_BASE}/api/transactions/${id}`, { method: "DELETE", headers: authHeaders() });
+  } catch (err) {
+    console.warn("Backend not reachable — removing locally only.", err);
+  }
+  transactions = transactions.filter(t => t.id != id);
+  renderAll();
+}
+
+// ---------- Add / Update Transaction ----------
 document.getElementById("transaction-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const amount = parseFloat(document.getElementById("amount").value);
   const description = document.getElementById("description").value;
   const date = document.getElementById("date").value;
-  const category = transactionType === "income" ? "Income" : "Other";
+  const category = transactionType === "income" ? "Income" : categorySelect.value;
+  const payload = { amount, description, date, category };
 
-  let newTx = { amount, description, category, date, is_anomaly: false };
-  try {
-    const res = await fetch(`${API_BASE}/transactions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount, description, date }),
-    });
-    newTx = await res.json();
-  } catch (err) {
-    console.warn("Backend not reachable yet — using local fallback.", err);
-  }
+  if (editingTxId) {
+    let updatedTx = { ...payload, id: editingTxId };
+    try {
+      const res = await fetch(`${API_BASE}/api/transactions/${editingTxId}`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+      });
+      updatedTx = await res.json();
+    } catch (err) {
+      console.warn("Backend not reachable — updating locally only.", err);
+    }
+    const idx = transactions.findIndex(t => t.id == editingTxId);
+    if (idx !== -1) transactions[idx] = updatedTx;
+    editingTxId = null;
+  } else {
+    let newTx = { ...payload, id: Date.now(), is_anomaly: false };
+    try {
+      const res = await fetch(`${API_BASE}/api/transactions`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify(payload),
+      });
+      newTx = await res.json();
+    } catch (err) {
+      console.warn("Backend not reachable yet — using local fallback.", err);
+    }
+    transactions.push(newTx);
 
-  transactions.push(newTx);
-
-  if (newTx.is_anomaly) {
-    const alertBox = document.getElementById("anomaly-alert");
-    alertBox.textContent = "⚠️ This transaction looks unusually high compared to your history.";
-    alertBox.classList.remove("hidden");
+    if (newTx.is_anomaly) {
+      const alertBox = document.getElementById("anomaly-alert");
+      alertBox.textContent = "⚠️ This transaction looks unusually high compared to your history.";
+      alertBox.classList.remove("hidden");
+    }
   }
 
   e.target.reset();

@@ -36,8 +36,7 @@
         <button type="submit" class="auth-submit" id="auth-submit-btn">Log in</button>
       </form>
 
-      <div class="auth-divider">or continue with</div>
-      <button class="btn-secondary" style="width:100%;" id="google-btn">Continue with Google</button>
+      
 
       <div class="auth-switch">
         <span id="switch-text">New here?</span>
@@ -74,19 +73,31 @@
     document.getElementById("switch-btn").textContent = isSignup ? "Log in" : "Create an account";
   });
 
- document.getElementById("auth-form").addEventListener("submit", (e) => {
+document.getElementById("auth-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const nameField = document.getElementById("name");
-  const emailField = document.getElementById("email");
-  const enteredName = isSignup ? nameField.value.trim() : "";
-  const displayName = enteredName || emailField.value.split("@")[0] || "Guest";
-  localStorage.setItem("budgetbuddy_user_name", displayName);
-  window.location.href = "dashboard.html";
-});
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-document.getElementById("google-btn").addEventListener("click", () => {
-  localStorage.setItem("budgetbuddy_user_name", "Guest");
-  window.location.href = "dashboard.html";
+  const endpoint = isSignup ? "/api/auth/register" : "/api/auth/login";
+  const body = isSignup ? { name, email, password } : { email, password };
+
+  try {
+    const res = await fetch(`http://localhost:5000${endpoint}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("Auth failed");
+    const data = await res.json();
+
+    localStorage.setItem("budgetbuddy_token", data.token);
+    localStorage.setItem("budgetbuddy_user_name", data.user?.name || name || email.split("@")[0]);
+    window.location.href = "dashboard.html";
+  } catch (err) {
+    alert("Login/signup failed. Check your details, or the backend may not be running.");
+    console.error(err);
+  }
 });
 </script>
 
